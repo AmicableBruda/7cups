@@ -1,4 +1,4 @@
 # 7cups
-Public repository for scripts developed for 7cups.com. 
+Public repository intended for script development related to 7 Cups.
 
-Speak to AmicableBruda about what you find here.
+Speak to AmicableBruda on 7cups.com about these scripts.
