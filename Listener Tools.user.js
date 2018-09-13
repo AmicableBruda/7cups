@@ -133,7 +133,7 @@ GM_addStyle(`
 //GM_deleteValue("lt-social"); GM_deleteValue("lt-resource");
 
 var socials = GM_getValue("lt-social");
-if (socials == undefined) {
+if (socials === undefined) {
     socials = [];
     socials.push("Welcome to 7 Cups. I'm glad you are here.");
     socials.push("Hello! How are you?");
@@ -148,7 +148,7 @@ if (socials == undefined) {
 }
 
 var resources = GM_getValue("lt-resource");
-if (resources == undefined) {
+if (resources === undefined) {
     resources = resourceLinks;
     let json = JSON.stringify(resources);
     if (json) {
