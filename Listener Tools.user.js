@@ -12,6 +12,13 @@
 // @grant        GM_deleteValue
 // ==/UserScript==
 
+/*
+DISCLAIMER
+I'm not affiliated with 7 Cups in any official capacity and 7 Cups has NOT approved me or this code for use on their website.
+
+This code is licensed under the MPL 2.0 open source license.
+*/
+
 var resourceLinks = [
     "https://www.7cups.com/12-step-working-guide/",
     "https://www.7cups.com/7cups-for-the-searching-soul/",
@@ -133,7 +140,7 @@ GM_addStyle(`
 //GM_deleteValue("lt-social"); GM_deleteValue("lt-resource");
 
 var socials = GM_getValue("lt-social");
-if (socials === undefined) {
+if (socials == undefined) {
     socials = [];
     socials.push("Welcome to 7 Cups. I'm glad you are here.");
     socials.push("Hello! How are you?");
@@ -148,7 +155,7 @@ if (socials === undefined) {
 }
 
 var resources = GM_getValue("lt-resource");
-if (resources === undefined) {
+if (resources == undefined) {
     resources = resourceLinks;
     let json = JSON.stringify(resources);
     if (json) {
