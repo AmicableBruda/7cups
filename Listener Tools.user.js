@@ -1,8 +1,11 @@
 // ==UserScript==
 // @name         Listener Tools
 // @license      MPL-2.0
-// @namespace    https://www.7cups.com/@AmicableBruda
-// @version      0.2
+// @namespace    https://github.com/AmicableBruda/7cups
+// @supportURL   https://github.com/AmicableBruda/7cups/issues
+// @updateUrl    https://github.com/AmicableBruda/7cups/raw/master/Listener%20Tools%20Update.user.js
+// @downloadURL  https://github.com/AmicableBruda/7cups/raw/master/Listener%20Tools.user.js
+// @version      0.3
 // @description  Listener improvements for the 7cups.com chat interface.
 // @author       AmicableBruda
 // @match        https://www.7cups.com/*/connect/conversation*
