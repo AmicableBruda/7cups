@@ -2,7 +2,7 @@
 // @name         Listener Tools
 // @license      MPL-2.0
 // @namespace    https://www.7cups.com/@AmicableBruda
-// @version      0.1
+// @version      0.2
 // @description  Listener improvements for the 7cups.com chat interface.
 // @author       AmicableBruda
 // @match        https://www.7cups.com/*/connect/conversation*
@@ -18,6 +18,9 @@ I'm not affiliated with 7 Cups in any official capacity and 7 Cups has NOT appro
 
 This code is licensed under the MPL 2.0 open source license.
 */
+
+// uncomment this line to delete the stored socials & resources on script load (recomment to stop deleting them on script load)
+//GM_deleteValue("lt-social"); GM_deleteValue("lt-resource");
 
 var resourceLinks = [
     "https://www.7cups.com/12-step-working-guide/",
@@ -136,9 +139,6 @@ GM_addStyle(`
 }
 `);
 
-// uncomment this line to delete the stored socials & resources on script load
-//GM_deleteValue("lt-social"); GM_deleteValue("lt-resource");
-
 var socials = GM_getValue("lt-social");
 if (socials === undefined) {
     socials = [];
@@ -220,6 +220,13 @@ function storeItem(listKey, itemText) {
     GM_setValue(listKey, JSON.stringify(newList));
 }
 
+function addClickEvent(itemClass, elem) {
+    let func = function () {
+        document.querySelector("#chatForm textarea#Comment").value = this.getAttribute(itemClass);
+    };
+    elem.addEventListener("click", func);
+}
+
 function updateClickEvents(menuId, attribName) {
     let links = document.querySelectorAll(menuId+" .lt-dropdown-content a");
     let func = function () {
@@ -230,21 +237,23 @@ function updateClickEvents(menuId, attribName) {
     });
 }
 
-function updateSaveBtn(id, btnText, placeText, arr) { // btnText = "R" or "S" ; id = "lt-resource" or "lt-social" ; arr = resources or socials
-    let btn = document.getElementById(id+"-input-save");
-    btn.addEventListener("click", function() {
-        let input = document.getElementById(id+"-input-box");
-        let value = input.value
+function addSaveEvent(elem, className) {
+    elem.addEventListener("click", function() {
+        let input = document.getElementById(className+"-input-box");
+        let value = input.value;
         if (value.length > 0) {
-            storeItem(id, value);
-            arr = JSON.parse(GM_getValue(id));
-            let newMenu = newDropdown(btnText, makeClickList(id, id+"-input", placeText, arr));
-            let curMenu = document.getElementById(id+"s");
-            let curContent = curMenu.querySelector(".lt-dropdown-content");
-            let newContent = newMenu.querySelector(".lt-dropdown-content");
-            curContent.innerHTML = newContent.innerHTML;
-            updateClickEvents("#"+id+"s", id);
-            updateSaveBtn(id, btnText, placeText, arr);
+            storeItem("lt-social", value);
+            var a = document.createElement("a");
+            var br = document.createElement("br");
+            a.setAttribute("href","#");
+            a.setAttribute("class", className);
+            a.setAttribute(className, value);
+            a.setAttribute("title", value);
+            a.innerHTML = value.replace("https://www.7cups.com/", "").replace("/", "").substring(0,43);
+            addClickEvent(className, a);
+            let content = input.parentNode.parentNode;
+            content.insertBefore(br, content.childNodes[1]);
+            content.insertBefore(a, content.childNodes[1]);
         }
     });
 }
@@ -258,11 +267,13 @@ function updateSaveBtn(id, btnText, placeText, arr) { // btnText = "R" or "S" ; 
     socialMenu.setAttribute("id","lt-socials");
     parent.insertBefore(socialMenu, chatForm);
     updateClickEvents("#lt-socials", "lt-social");
-    updateSaveBtn("lt-social", "S", "Add a new social text here", socials)
+    let socialSave = document.getElementById("lt-social-input-save");
+    addSaveEvent(socialSave,"lt-social");
 
     var resourceMenu = newDropdown("R", makeClickList("lt-resource", "lt-resource-input", "Add a new 7 Cups resource url here", resources));
     resourceMenu.setAttribute("id","lt-resources");
     parent.insertBefore(resourceMenu, chatForm);
     updateClickEvents("#lt-resources", "lt-resource");
-    updateSaveBtn("lt-resource", "R", "Add a new 7 Cups resource url here", resources)
+    let resourceSave = document.getElementById("lt-resource-input-save");
+    addSaveEvent(resourceSave,"lt-resource");
 })();
