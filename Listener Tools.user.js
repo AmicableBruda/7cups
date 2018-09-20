@@ -167,7 +167,7 @@ function ClickList(itemClass, items, titleCreator) {
     let ob = this;
     let func = function() {
         document.querySelector("#chatForm textarea#Comment").value = this.getAttribute("string");
-    }
+    };
     ob.itemClass = itemClass;
     ob.newItem = function (string) {
         let a = document.createElement("a");
@@ -178,18 +178,18 @@ function ClickList(itemClass, items, titleCreator) {
         a.innerHTML = ob.createTitle(string); //todo: add string replace for web urls
         a.addEventListener("click", func);
         return a;
-    }
+    };
     ob.createTitle = titleCreator;
     ob.append = function (string) {
         let item = ob.newItem(string);
         ob.element.appendChild(item);
         ob.element.appendChild(document.createElement("br"));
-    }
+    };
     ob.prepend = function (string) {
         let item = ob.newItem(string);
         ob.element.insertBefore(document.createElement("br"), ob.element.childNodes[0]);
         ob.element.insertBefore(item, ob.element.childNodes[0]);
-    }
+    };
     ob.element = document.createElement("div");
     for (let i = 0; i < items.length; i++) {
         ob.append(items[i]);
@@ -228,7 +228,7 @@ function SaveForm(id, placeholder, clickList) {
     ob.button.setAttribute("id", `${id}-button`);
     ob.button.setAttribute("onclick", "return false;");
     ob.button.innerHTML = "+";
-    ob.button.addEventListener("click", ob.save)
+    ob.button.addEventListener("click", ob.save);
     ob.element.appendChild(ob.input);
     ob.element.appendChild(ob.button);
 }
