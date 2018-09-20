@@ -274,7 +274,7 @@ var resources = loadResources();
     'use strict';
     var sTitleFunc = function (string) {
         return string.substring(0, 43);
-    }
+    };
     var socialList = new ClickList("click-item", socials, sTitleFunc);
     var socialMenu = new HoverMenu("lt-social", "S"), socialSave = new SaveForm("lt-social", "Add new social comment here", socialList);
     GM_registerMenuCommand("Reset Socials", function() { // register option in Tampermonkey menu for deleting stored socials
@@ -290,7 +290,7 @@ var resources = loadResources();
     }, "S");
     var rTitleFunc = function (string) {
         return string.replace(/^https:\/\/www.7cups.com\//, "").replace(/\/$/, "").substring(0, 43);
-    }
+    };
     var resourceList = new ClickList("click-item", resources, rTitleFunc);
     var resourceMenu = new HoverMenu("lt-resource", "R"), resourceSave = new SaveForm("lt-resource", "Add new resource link here", resourceList);
     GM_registerMenuCommand("Reset Resources", function() { // register option in Tampermonkey menu for deleting stored Resources
