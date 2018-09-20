@@ -40,6 +40,6 @@ To reset existing Resource presets to default:
 
 ### What's New?
 
-0.4 - Added ability to reset the presets via Tampermonkey menu.
-0.3 - Added proper script update Urls.
-0.2 - Initial public script release.
+- 0.4 - Added ability to reset the presets via Tampermonkey menu.
+- 0.3 - Added proper script update Urls.
+- 0.2 - Initial public script release.
