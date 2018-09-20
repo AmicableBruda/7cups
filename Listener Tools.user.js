@@ -5,7 +5,7 @@
 // @supportURL   https://github.com/AmicableBruda/7cups/issues
 // @updateUrl    https://github.com/AmicableBruda/7cups/raw/master/Listener%20Tools%20Update.user.js
 // @downloadURL  https://github.com/AmicableBruda/7cups/raw/master/Listener%20Tools.user.js
-// @version      0.3
+// @version      0.4
 // @description  Listener improvements for the 7cups.com chat interface.
 // @author       AmicableBruda
 // @match        https://www.7cups.com/*/connect/conversation*
@@ -13,6 +13,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
+// @grant        GM_registerMenuCommand
 // ==/UserScript==
 
 /*
@@ -22,10 +23,8 @@ I'm not affiliated with 7 Cups in any official capacity and 7 Cups has NOT appro
 This code is licensed under the MPL 2.0 open source license.
 */
 
-// uncomment this line to delete the stored socials & resources on script load (recomment to stop deleting them on script load)
-//GM_deleteValue("lt-social"); GM_deleteValue("lt-resource");
-
 var resourceLinks = [
+    "http://suicide.org/",
     "https://www.7cups.com/12-step-working-guide/",
     "https://www.7cups.com/7cups-for-the-searching-soul/",
     "https://www.7cups.com/adhd/",
@@ -68,215 +67,248 @@ var resourceLinks = [
 ];
 
 GM_addStyle(`
-.lt-dropbtn {
-  width: 25px;
-  border-radius:8px;
-  background: white;
-  border: 1px outset #0275d8;
-  font-weight: bold;
-  font-size: 12px;
-  color: #0275d8;
+.lt-social-dropbtn, .lt-resource-dropbtn {
+width: 25px;
+border-radius:8px;
+background: white;
+border: 1px outset #0275d8;
+font-weight: bold;
+font-size: 12px;
+color: #0275d8;
+margin-top: 0px
 }
 
-#lt-resources .lt-dropbtn {
-  margin-top: 3px;
-}
-#lt-socials .lt-dropbtn {
-  margin-top: 0px;
+.lt-resource-dropbtn {}
+
+.lt-resource-dropdown {
+top: 23px;
 }
 
-.lt-dropdown {
-  position: absolute;
-  display: inline-block;
-  z-index:1;
-  margin-left: 4px;
-  margin-top: 2px;
+.lt-social-dropdown, .lt-resource-dropdown {
+z-index:1;
+margin-left: 4px;
+margin-top: 2px;
 }
 
-.lt-dropdown-content {
-  display: none;
-  position: absolute;
-  min-width: 320px;
-  max-height: 400px;
-  border: 1px solid #1e90fe;
-  border-radius: 10px;
-  background: white;
-  padding: 10px;
-  z-index: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-#lt-social-input-box {
-  width:225px;
-  margin-bottom: 5px;
-}
-#lt-resource-input-box {
-  width:240px;
-  margin-bottom: 5px;
+.lt-social-dropdown-content, .lt-resource-dropdown-content {
+min-width: 320px;
+max-height: 400px;
+border: 1px solid #1e90fe;
+border-radius: 10px;
+background: white;
+padding: 10px;
+z-index: 2;
+overflow-x: hidden;
+overflow-y: auto;
+left: 0px;
+bottom: 0px;
 }
 
-#lt-resources {
-  top: 20px;
+#lt-social-input {
+width:225px;
+margin-bottom: 5px;
 }
 
-#lt-resources .lt-dropdown-content {
-  left: 0px;
-  bottom: 20px;
-}
-
-#lt-socials .lt-dropdown-content {
-  left: 0px;
-  bottom: 20px;
-}
-
-.lt-dropdown-content a { margin: 0px; }
-.lt-dropdown:hover .lt-dropdown-content .lt-dropdown .lt-dropdown-content {
-  display: none;
-}
-.lt-dropdown:hover .lt-dropdown-content .lt-dropdown:hover .lt-dropdown-content {
-  display: block;
-}
-.lt-dropdown:hover .lt-dropdown-content {
-  display: inline-block;
-  bottom: 0px;
+#lt-resource-input {
+width:240px;
+margin-bottom: 5px;
 }
 `);
 
-var socials = GM_getValue("lt-social");
-if (socials === undefined) {
-    socials = [];
-    socials.push("Welcome to 7 Cups. I'm glad you are here.");
-    socials.push("Hello! How are you?");
-    let json = JSON.stringify(socials);
-    if (json) {
-        GM_setValue("lt-social", json);
-    } else {
-        console.log("Error creating social JSON.");
-    }
-} else {
-    socials = JSON.parse(socials);
-}
-
-var resources = GM_getValue("lt-resource");
-if (resources === undefined) {
-    resources = resourceLinks;
-    let json = JSON.stringify(resources);
-    if (json) {
-        GM_setValue("lt-resource", json);
-    } else {
-        console.log("Error creating resources JSON");
-    }
-} else {
-    resources = JSON.parse(resources);
-}
-
-function newDropdown(title, content) {
-    let dropdown = document.createElement("div");
-    let dropBtn = document.createElement("button");
-    dropdown.setAttribute("class", "lt-dropdown");
-    dropBtn.setAttribute("class","lt-dropbtn");
-    dropBtn.innerHTML = title;
-    content.setAttribute("class","lt-dropdown-content");
-    dropdown.appendChild(dropBtn);
-    dropdown.appendChild(content);
-    return dropdown;
-}
-
-function makeClickList(itemClass, inputClass, placeholder, arr) {
-    let list = document.createElement("div");
-    list.appendChild(newInputForm(inputClass, placeholder));
-    for (var i = 0; i < arr.length; i++) {
-        var a = document.createElement("a");
-        a.setAttribute("href","#");
-        a.setAttribute("class", itemClass);
-        a.setAttribute(itemClass, arr[i]);
-        a.setAttribute("title", arr[i]);
-        a.innerHTML = arr[i].replace("https://www.7cups.com/", "").replace("/", "").substring(0,43);
-        list.appendChild(a);
-        list.appendChild(document.createElement("br"));
-    }
-    return list;
-}
-
-function newInputForm(id, placeholder) {
-    let form = document.createElement("form");
-    let input = document.createElement("input");
-    let save = document.createElement("button");
-    form.setAttribute("id", id+"-form");
-    input.setAttribute("id", id+"-box");
-    input.setAttribute("placeholder", placeholder);
-    save.setAttribute("id", id+"-save");
-    save.setAttribute("onclick", "return false;");
-    save.innerHTML = "+";
-    form.appendChild(input);
-    form.appendChild(save);
-    return form;
-}
-
-function storeItem(listKey, itemText) {
-    let json = GM_getValue(listKey);
-    let storedList = JSON.parse(json);
-    let newList = []; newList.push(itemText);
-    storedList.forEach(function(elem) {
-        newList.push(elem);
-    });
-    GM_setValue(listKey, JSON.stringify(newList));
-}
-
-function addClickEvent(itemClass, elem) {
-    let func = function () {
-        document.querySelector("#chatForm textarea#Comment").value = this.getAttribute(itemClass);
-    };
-    elem.addEventListener("click", func);
-}
-
-function updateClickEvents(menuId, attribName) {
-    let links = document.querySelectorAll(menuId+" .lt-dropdown-content a");
-    let func = function () {
-        document.querySelector("#chatForm textarea#Comment").value = this.getAttribute(attribName);
-    };
-    links.forEach(function (elem) {
-        elem.addEventListener("click", func);
-    });
-}
-
-function addSaveEvent(elem, className) {
-    elem.addEventListener("click", function() {
-        let input = document.getElementById(className+"-input-box");
-        let value = input.value;
-        if (value.length > 0) {
-            storeItem("lt-social", value);
-            var a = document.createElement("a");
-            var br = document.createElement("br");
-            a.setAttribute("href","#");
-            a.setAttribute("class", className);
-            a.setAttribute(className, value);
-            a.setAttribute("title", value);
-            a.innerHTML = value.replace("https://www.7cups.com/", "").replace("/", "").substring(0,43);
-            addClickEvent(className, a);
-            let content = input.parentNode.parentNode;
-            content.insertBefore(br, content.childNodes[1]);
-            content.insertBefore(a, content.childNodes[1]);
+// load stored socials or defaults
+function loadSocials() {
+    let socials = GM_getValue("lt-social");
+    if (socials === undefined) {
+        socials = [];
+        socials.push("Hello! How are you?");
+        socials.push("Hello! How is everyone?");
+        socials.push("Welcome to 7 Cups! How are you?");
+        let json = JSON.stringify(socials);
+        if (json) {
+            GM_setValue("lt-social", json);
+        } else {
+            console.log("Error creating social JSON.");
         }
+    } else {
+        socials = JSON.parse(socials);
+    }
+    return socials;
+}
+
+// load stored resources or defaults
+function loadResources() {
+    let resources = GM_getValue("lt-resource");
+    if (resources === undefined) {
+        resources = [];
+        resources = resourceLinks;
+        let json = JSON.stringify(resources);
+        if (json) {
+            GM_setValue("lt-resource", json);
+        } else {
+            console.log("Error creating resources JSON");
+        }
+    } else {
+        resources = JSON.parse(resources);
+    }
+    return resources;
+}
+
+/*
+ClickList object constructor
+
+A list of elements that insert their string content into the chat input box when clicked.
+
+itemClass - specifice the css class used for the items.
+items - array of strings
+titleCreator - a function that takes one argument 'string' and is called on each item to create the link text displayed in the html list.
+    'string' contains the item's full string.
+*/
+function ClickList(itemClass, items, titleCreator) {
+    let ob = this;
+    let func = function() {
+        document.querySelector("#chatForm textarea#Comment").value = this.getAttribute("string");
+    }
+    ob.itemClass = itemClass;
+    ob.newItem = function (string) {
+        let a = document.createElement("a");
+        a.setAttribute("href", "#");
+        a.setAttribute("class", ob.itemClass);
+        a.setAttribute("string", string);
+        a.setAttribute("title", string);
+        a.innerHTML = ob.createTitle(string); //todo: add string replace for web urls
+        a.addEventListener("click", func);
+        return a;
+    }
+    ob.createTitle = titleCreator;
+    ob.append = function (string) {
+        let item = ob.newItem(string);
+        ob.element.appendChild(item);
+        ob.element.appendChild(document.createElement("br"));
+    }
+    ob.prepend = function (string) {
+        let item = ob.newItem(string);
+        ob.element.insertBefore(document.createElement("br"), ob.element.childNodes[0]);
+        ob.element.insertBefore(item, ob.element.childNodes[0]);
+    }
+    ob.element = document.createElement("div");
+    for (let i = 0; i < items.length; i++) {
+        ob.append(items[i]);
+    }
+}
+
+/*
+SaveForm object constructor
+
+An input form used to add new strings to an existing clickList and stored string array.
+
+id - CSS id used in form html elements (example-form, example-input, example-button)
+placeholder - Text to display as placeholder in html input box.
+clickList - The clickList that this form saves to.
+*/
+function SaveForm(id, placeholder, clickList) {
+    let ob = this;
+    ob.id = id;
+    ob.list = clickList;
+    ob.save = function () {
+        let text = ob.input.value;
+        ob.list.prepend(text);
+        let json = GM_getValue(ob.id), storedList = JSON.parse(json);
+        let newList = []; newList.push(text);
+        storedList.forEach(function(elem) {
+            newList.push(elem);
+        });
+        GM_setValue(ob.id, JSON.stringify(newList));
+    };
+    ob.element = document.createElement("form");
+    ob.input = document.createElement("input");
+    ob.button = document.createElement("button");
+    ob.element.setAttribute("id", `${id}-form`);
+    ob.input.setAttribute("id", `${id}-input`);
+    ob.input.setAttribute("placeholder", placeholder);
+    ob.button.setAttribute("id", `${id}-button`);
+    ob.button.setAttribute("onclick", "return false;");
+    ob.button.innerHTML = "+";
+    ob.button.addEventListener("click", ob.save)
+    ob.element.appendChild(ob.input);
+    ob.element.appendChild(ob.button);
+}
+
+/*
+HoverMenu object constructor
+
+A hover menu that displays its content on mouseover.
+
+id - CSS id used for the menu and to customize the CSS class of child elements (example-dropbt, example-dropdown, example-dropdown-content).
+title - Text used for elements menu button.
+*/
+function HoverMenu(id, title) {
+    let ob = this;
+    ob.id = id;
+    ob.title = title;
+    ob.button = document.createElement("button");
+    ob.button.setAttribute("class", `${id}-dropbtn`);
+    ob.button.style.position = "absolute";
+    ob.button.innerHTML = this.title;
+    ob.content = document.createElement("div");
+    ob.content.setAttribute("class", `${id}-dropdown-content`);
+    ob.content.style.position = "absolute";
+    ob.content.style.display = "none";
+    ob.element = document.createElement("div");
+    ob.element.setAttribute("class", `${id}-dropdown`);
+    ob.element.style.position = "absolute";
+    ob.element.style.display = "inline-block";
+    ob.element.appendChild(this.button);
+    ob.element.appendChild(this.content);
+    ob.element.addEventListener("mouseover", function() {
+        ob.content.style.display = "block";
+    });
+    ob.element.addEventListener("mouseout", function() {
+        ob.content.style.display = "none";
     });
 }
+
+var socials = loadSocials();
+var resources = loadResources();
 
 (function() {
     'use strict';
-    var chatForm = document.getElementById("chatForm");
-    var parent = chatForm.parentNode;
-
-    var socialMenu = newDropdown("S", makeClickList("lt-social", "lt-social-input", "Add a new social text here", socials));
-    socialMenu.setAttribute("id","lt-socials");
-    parent.insertBefore(socialMenu, chatForm);
-    updateClickEvents("#lt-socials", "lt-social");
-    let socialSave = document.getElementById("lt-social-input-save");
-    addSaveEvent(socialSave,"lt-social");
-
-    var resourceMenu = newDropdown("R", makeClickList("lt-resource", "lt-resource-input", "Add a new 7 Cups resource url here", resources));
-    resourceMenu.setAttribute("id","lt-resources");
-    parent.insertBefore(resourceMenu, chatForm);
-    updateClickEvents("#lt-resources", "lt-resource");
-    let resourceSave = document.getElementById("lt-resource-input-save");
-    addSaveEvent(resourceSave,"lt-resource");
+    var sTitleFunc = function (string) {
+        return string.substring(0, 43);
+    }
+    var socialList = new ClickList("click-item", socials, sTitleFunc);
+    var socialMenu = new HoverMenu("lt-social", "S"), socialSave = new SaveForm("lt-social", "Add new social comment here", socialList);
+    GM_registerMenuCommand("Reset Socials", function() { // register option in Tampermonkey menu for deleting stored socials
+        if (confirm("Reset Socials to default?")) {
+            GM_deleteValue("lt-social");
+            socials = loadSocials();
+            socialList = new ClickList("click-item", socials, sTitleFunc);
+            let newSave = socialSave = new SaveForm("lt-social", "Add new social comment here", socialList);
+            socialMenu.content.innerHTML = "";
+            socialMenu.content.appendChild(newSave.element);
+            socialMenu.content.appendChild(socialList.element);
+        }
+    }, "S");
+    var rTitleFunc = function (string) {
+        return string.replace(/^https:\/\/www.7cups.com\//, "").replace(/\/$/, "").substring(0, 43);
+    }
+    var resourceList = new ClickList("click-item", resources, rTitleFunc);
+    var resourceMenu = new HoverMenu("lt-resource", "R"), resourceSave = new SaveForm("lt-resource", "Add new resource link here", resourceList);
+    GM_registerMenuCommand("Reset Resources", function() { // register option in Tampermonkey menu for deleting stored Resources
+        if (confirm("Reset Resources to default?")) {
+            GM_deleteValue("lt-resource");
+            resources = loadResources();
+            let resourceList = new ClickList("click-item", resources, rTitleFunc);
+            let newSave = new SaveForm("lt-resource", "Add new resource link here", resourceList);
+            resourceMenu.content.innerHTML = "";
+            resourceMenu.content.appendChild(newSave.element);
+            resourceMenu.content.appendChild(resourceList.element);
+        }
+    }, "R");
+    var chatForm = document.getElementById("chatForm"), parent = chatForm.parentNode;
+    socialMenu.content.appendChild(socialSave.element);
+    socialMenu.content.appendChild(socialList.element);
+    parent.insertBefore(socialMenu.element, chatForm);
+    resourceMenu.content.appendChild(resourceSave.element);
+    resourceMenu.content.appendChild(resourceList.element);
+    parent.insertBefore(resourceMenu.element, chatForm);
 })();

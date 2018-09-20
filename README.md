@@ -29,3 +29,17 @@ To add a new preset:
 1. Type in your text in the form at the top of the presets menu.
 2. Click "+" button to add the text to the presets.
 3. Use the preset!
+
+To reset existing Social presets to default:
+1. Open Tampermonkey menu.
+2. Click "Reset Socials" (changes take effect immediately after comfirmation).
+
+To reset existing Resource presets to default:
+1. Open Tampermonkey menu.
+2. Click "Reset Resources" (changes take effect immediately after comfirmation).
+
+### What's New?
+
+0.4 - Added ability to reset the presets via Tampermonkey menu.
+0.3 - Added proper script update Urls.
+0.2 - Initial public script release.
