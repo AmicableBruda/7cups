@@ -5,7 +5,7 @@
 // @supportURL   https://github.com/AmicableBruda/7cups/issues
 // @updateUrl    https://github.com/AmicableBruda/7cups/raw/master/Listener%20Tools%20Update.user.js
 // @downloadURL  https://github.com/AmicableBruda/7cups/raw/master/Listener%20Tools.user.js
-// @version      0.4
+// @version      0.5
 // @description  Listener improvements for the 7cups.com chat interface.
 // @author       AmicableBruda
 // @match        https://www.7cups.com/*/connect/conversation*
@@ -283,7 +283,7 @@ var resources = loadResources();
             GM_deleteValue("lt-social");
             socials = loadSocials();
             socialList = new ClickList("click-item", socials, sTitleFunc);
-            let newSave = socialSave = new SaveForm("lt-social", "Add new social comment here", socialList);
+            let newSave = new SaveForm("lt-social", "Add new social comment here", socialList);
             socialMenu.content.innerHTML = "";
             socialMenu.content.appendChild(newSave.element);
             socialMenu.content.appendChild(socialList.element);
