@@ -165,7 +165,7 @@ titleCreator - a function that takes one argument 'string' and is called on each
 */
 function ClickList(itemClass, items, titleCreator) {
     let ob = this;
-    let func = function() {
+    let clickFunc = function() {
         document.querySelector("#chatForm textarea#Comment").value = this.getAttribute("string");
     };
     ob.itemClass = itemClass;
@@ -176,7 +176,7 @@ function ClickList(itemClass, items, titleCreator) {
         a.setAttribute("string", string);
         a.setAttribute("title", string);
         a.innerHTML = ob.createTitle(string); //todo: add string replace for web urls
-        a.addEventListener("click", func);
+        a.addEventListener("click", clickFunc);
         return a;
     };
     ob.createTitle = titleCreator;
@@ -218,6 +218,7 @@ function SaveForm(id, placeholder, clickList) {
             newList.push(elem);
         });
         GM_setValue(ob.id, JSON.stringify(newList));
+        ob.input.value = "";
     };
     ob.element = document.createElement("form");
     ob.input = document.createElement("input");
