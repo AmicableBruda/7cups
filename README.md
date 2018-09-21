@@ -39,7 +39,7 @@ To reset existing Resource presets to default:
 2. Click "Reset Resources" (changes take effect immediately after comfirmation).
 
 ### What's New?
-
+- 0.5 - Minor bug fixes.
 - 0.4 - Added ability to reset the presets via Tampermonkey menu.
 - 0.3 - Added proper script update Urls.
 - 0.2 - Initial public script release.
